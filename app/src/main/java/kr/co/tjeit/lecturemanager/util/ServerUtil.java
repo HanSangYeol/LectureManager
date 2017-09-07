@@ -437,4 +437,44 @@ public class ServerUtil {
         });
     }
 
+    // 페이스북 로그인 기능
+    public static void updateProfilePhoto(final Context context, String user_id, Bitmap bitmap, final JsonResponseHandler handler) {
+        String url = BASE_URL+"mobile/facebook_login";
+        //		String registrationId = ContextUtil.getRegistrationId(context);
+
+        Map<String, String> data = new HashMap<String, String>();
+        data.put("user_id", user_id);
+
+        AsyncHttpRequest.postWithImageFile(context, url,  data, bitmap, "profile",new AsyncHttpRequest.HttpResponseHandler() {
+
+            @Override
+            public boolean onPrepare() {
+                return true;
+            }
+
+            @Override
+            public void onResponse(String response) {
+                System.out.println(response);
+                try {
+                    JSONObject json = new JSONObject(response);
+
+                    if (handler != null)
+                        handler.onResponse(json);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void onFinish() {
+
+            }
+
+            @Override
+            public void onCancelled() {
+
+            }
+
+        });
+    }
+
 }

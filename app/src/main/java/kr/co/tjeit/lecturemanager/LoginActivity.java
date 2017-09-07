@@ -87,14 +87,8 @@ public class LoginActivity extends BaseActivity {
                                 Log.d("로그인JSON", json.toString());
                                 try {
                                     if (json.getBoolean("result")) {
-//                                        User temp = User.getUserFromJsonObject(json.getJSONObject("user"));
+                                        User temp = User.getUserFromJsonObject(json.getJSONObject("user"));
 
-                                        User temp = new User();
-                                        temp.setId(json.getJSONObject("user").getInt("id"));
-                                        temp.setUserId(json.getJSONObject("user").getString("user_id"));
-                                        temp.setName(json.getJSONObject("user").getString("name"));
-                                        temp.setProfileURL(json.getJSONObject("user").getString("profile_photo"));
-                                        temp.setPhoneNum(json.getJSONObject("user").getString("phone_num"));
 
                                         String welcomMessageStr = String.format(Locale.KOREA, "%s님이 로그인 했습니다.", temp.getName());
                                         Toast.makeText(mContext, welcomMessageStr, Toast.LENGTH_SHORT).show();

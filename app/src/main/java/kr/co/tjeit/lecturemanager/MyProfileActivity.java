@@ -1,17 +1,28 @@
 package kr.co.tjeit.lecturemanager;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 
+import org.json.JSONObject;
+
+import java.io.IOException;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 import kr.co.tjeit.lecturemanager.util.ContextUtil;
+import kr.co.tjeit.lecturemanager.util.ServerUtil;
 
 public class MyProfileActivity extends BaseActivity {
+
+    final int GALLERY = 1;
 
     private de.hdodenhof.circleimageview.CircleImageView profileImg;
     private android.widget.TextView nameTxt;
@@ -40,7 +51,50 @@ public class MyProfileActivity extends BaseActivity {
                 startActivity(intent);
             }
         });
+        profileImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent myIntent = new Intent();
+                myIntent.setType("image/+");
+                myIntent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(myIntent, GALLERY);
+                // 일단은 갤러리가 뜬다
+            }
+        });
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == GALLERY){
+            if (resultCode == RESULT_OK){
+                // 서버에 프로필 사진 전송, 후처리
+                // 사진 전송 => Bitmap을 따서 서버에 보낸다.
+
+                // 1. Butmap 얻어오기
+                Uri uri = data.getData();
+                // 어떤 데이터형식으로 가져왔니를 얻어옴
+
+                // 2. 비트맵 따기
+                // 에러 => try/catch
+                try {
+                    final Bitmap myBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+
+                    ServerUtil.updateProfilePhoto(mContext, ContextUtil.getLoginUser(mContext).getId() + "",
+                            myBitmap, new ServerUtil.JsonResponseHandler() {
+                                @Override
+                                public void onResponse(JSONObject json) {
+                                    Toast.makeText(mContext, "서버에 이미지파일 업로드 완료", Toast.LENGTH_SHORT).show();
+                                    profileImg.setImageBitmap(myBitmap);
+                                }
+                            });
+               
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override
